@@ -149,12 +149,31 @@ class DeFiSDKAPIRepository(BaseEthereumRepository):
         words = [
             remove_0x_prefix(hex(64)).zfill(64),  # position of the dynamic argument
             remove_0x_prefix(token_address).zfill(64),  # second argument: address
-            remove_0x_prefix(hex(len(token_type))).zfill(64),  # length of the dynamic argument
+            remove_0x_prefix(hex(len(bytes(token_type, 'utf-8')))).zfill(64),  # length of the dynamic argument
             remove_0x_prefix(string_to_hash(token_type)).ljust(64, '0')  # left-aligned argument
         ]
         return await self._call(
             self._registry,
             self._get_full_token_balance + ''.join(words),
+            serializer=defi_sdk_full_token_balance_to_entity,
+            block=block
+        )
+
+    async def get_final_full_token_balance(
+            self,
+            token_type: str,
+            token_address: str,
+            block: Union[str, int] = 'latest'
+    ) -> AssetBalance:
+        words = [
+            remove_0x_prefix(hex(64)).zfill(64),  # position of the dynamic argument
+            remove_0x_prefix(token_address).zfill(64),  # second argument: address
+            remove_0x_prefix(hex(len(bytes(token_type, 'utf-8')))).zfill(64),  # length of the dynamic argument
+            remove_0x_prefix(string_to_hash(token_type)).ljust(64, '0')  # left-aligned argument
+        ]
+        return await self._call(
+            self._registry,
+            self._get_final_full_token_balance + ''.join(words),
             serializer=defi_sdk_full_token_balance_to_entity,
             block=block
         )
@@ -166,6 +185,15 @@ class DeFiSDKAPIRepository(BaseEthereumRepository):
             block: Union[str, int] = 'latest'
     ) -> List[TokenBalance]:
         full_token_balance = await self.get_full_token_balance(token_type, token_address, block)
+        return full_token_balance.underlying_token_balances
+
+    async def get_final_token_components(
+            self,
+            token_type: str,
+            token_address: str,
+            block: Union[str, int] = 'latest'
+    ) -> List[TokenBalance]:
+        full_token_balance = await self.get_final_full_token_balance(token_type, token_address, block)
         return full_token_balance.underlying_token_balances
 
     async def get_token_metadata(

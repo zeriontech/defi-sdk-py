@@ -67,6 +67,14 @@ class DeFiSDK:
     ) -> AssetBalance:
         return await self._repository.get_full_token_balance(token_type, token_address, block)
 
+    async def get_final_full_token_balance(
+            self,
+            token_type: str,
+            token_address: str,
+            block: Union[str, int] = 'latest'
+    ) -> AssetBalance:
+        return await self._repository.get_final_full_token_balance(token_type, token_address, block)
+
     async def get_token_components(
             self,
             token_type: str,
@@ -74,6 +82,14 @@ class DeFiSDK:
             block: Union[str, int] = 'latest'
     ) -> List[TokenBalance]:
         return await self._repository.get_token_components(token_type, token_address, block)
+
+    async def get_final_token_components(
+            self,
+            token_type: str,
+            token_address: str,
+            block: Union[str, int] = 'latest'
+    ) -> List[TokenBalance]:
+        return await self._repository.get_final_token_components(token_type, token_address, block)
 
     async def get_token_metadata(
             self,

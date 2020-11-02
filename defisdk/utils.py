@@ -4,6 +4,8 @@ from typing import Any, Callable, List, Union
 
 from sha3 import keccak_256
 
+from .enums import AdapterType
+
 
 def remove_0x_prefix(passed_hash: str) -> str:
     return passed_hash[2:] if passed_hash.startswith("0x") else passed_hash
@@ -34,7 +36,7 @@ def hash_to_int(passed_hash: str, unsigned: bool = True) -> int:
 
 def hash_to_decimal(passed_hash: str, decimals: int = 18) -> Decimal:
     value = hash_to_int(passed_hash)
-    sign = 0 if value > 0 else 1
+    sign = int(value <= 0)
     digits = tuple(int(digit) for digit in str(abs(value)))
     exponent = -decimals
     return Decimal((sign, digits, exponent))
@@ -114,3 +116,8 @@ def get_signature_hash(signature: bytes) -> str:
 
 def string_to_hash(passed_string: str) -> str:
     return represent_hash(bytes(passed_string, 'UTF-8'))
+
+
+def get_adapter_id(adapter_name: str, adapter_type: AdapterType) -> str:
+    encoded_adapter_name = string_to_hash(adapter_name)
+    return string_to_hash(adapter_name) + '0' * (65 - len(encoded_adapter_name)) + str(adapter_type.value)

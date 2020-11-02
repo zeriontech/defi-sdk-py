@@ -19,20 +19,29 @@ def defi_sdk_token_metadata_to_entity(words: List[str]) -> TokenMetadata:
     )
 
 
-def defi_sdk_token_balance_to_entity(words: List[str]) -> TokenBalance:
+def defi_sdk_token_balance_to_entity(
+        words: List[str],
+        rate: bool = False,
+        base_token_decimals: int = 18
+) -> TokenBalance:
     metadata_location = hash_to_int(words[0]) // 32
     metadata = defi_sdk_token_metadata_to_entity(words[metadata_location:])
+    decimal_shift = 18 - base_token_decimals if rate else 0
     return TokenBalance(
         metadata=metadata,
-        balance=hash_to_decimal(words[1], metadata.decimals)
+        balance=hash_to_decimal(words[1], metadata.decimals + decimal_shift)
     )
 
 
-def defi_sdk_asset_balance_to_entity(words: List[str]) -> AssetBalance:
+def defi_sdk_asset_balance_to_entity(words: List[str], rate: bool = False) -> AssetBalance:
     base_location = hash_to_int(words[0]) // 32
     underlying_location = hash_to_int(words[1]) // 32
-    base_balance = defi_sdk_token_balance_to_entity(words[base_location:underlying_location])
-    underlying_balances = words_to_list(words[underlying_location:], defi_sdk_token_balance_to_entity, True)
+    base_balance = defi_sdk_token_balance_to_entity(words[base_location:underlying_location], rate=rate)
+    underlying_balances = words_to_list(
+        words[underlying_location:],
+        lambda x: defi_sdk_token_balance_to_entity(x, rate=rate, base_token_decimals=base_balance.metadata.decimals),
+        True
+    )
     return AssetBalance(
         base_token_balance=base_balance,
         underlying_token_balances=underlying_balances
@@ -100,5 +109,4 @@ def defi_sdk_protocol_names_to_list_of_string(data: str) -> List[str]:
 
 
 def defi_sdk_full_token_balance_to_entity(data: str) -> AssetBalance:
-    asset_balance = defi_sdk_asset_balance_to_entity(hash_to_words(data)[1:])
-    return asset_balance
+    return defi_sdk_asset_balance_to_entity(hash_to_words(data)[1:], rate=True)

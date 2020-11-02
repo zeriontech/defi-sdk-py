@@ -1,0 +1,3 @@
+ZERO_ADDRESS = f'0x{40*"0"}'
+ETH_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+BLOCKS_PER_YEAR = 2102400

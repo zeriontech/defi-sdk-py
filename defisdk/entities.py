@@ -1,6 +1,8 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from decimal import Decimal
 from typing import List
+
+from .constants import ZERO_ADDRESS
 
 
 @dataclass(eq=True, frozen=True)
@@ -48,3 +50,57 @@ class ProtocolMetadata:
 class ProtocolBalance:
     metadata: ProtocolMetadata
     adapter_balances: List[AdapterBalance]
+
+
+@dataclass(frozen=True)
+class TokenAmount:
+    token: str = ZERO_ADDRESS
+    amount: int = 0
+    amount_type: int = 0
+
+    def encode(self):
+        return [
+            self.token,
+            self.amount,
+            self.amount_type,
+        ]
+
+
+@dataclass(frozen=True)
+class AbsoluteTokenAmount:
+    token: str = ZERO_ADDRESS
+    absolute_amount: int = 0
+
+    def encode(self):
+        return [
+            self.token,
+            self.absolute_amount,
+        ]
+
+
+@dataclass(frozen=True)
+class Fee:
+    share: int = 0
+    beneficiary: str = ZERO_ADDRESS
+
+    def encode(self):
+        return [
+            self.share,
+            self.beneficiary,
+        ]
+
+
+@dataclass(frozen=True)
+class Action:
+    action_type: int = 0
+    protocol_adapter_id: str = ''
+    tokenAmounts: List[TokenAmount] = field(default_factory=list)
+    data: str = ''
+
+    def encode(self):
+        return [
+            self.protocol_adapter_id,
+            self.action_type,
+            [x.encode() for x in self.tokenAmounts],
+            self.data,
+        ]
