@@ -21,7 +21,7 @@ setup(
     packages=find_packages(),
     install_requires=[
         'aiohttp==3.7.4.post0',
-        'furl==2.1.0',
+        'furl==2.1.2',
         'pysha3==1.0.2',
     ],
     python_requires='>=3.7',
