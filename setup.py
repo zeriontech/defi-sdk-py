@@ -20,7 +20,7 @@ setup(
     url='https://github.com/zeriontech/defi-sdk-py',
     packages=find_packages(),
     install_requires=[
-        'aiohttp==3.7.4.post0',
+        'aiohttp==3.8.5',
         'furl==2.1.3',
         'pysha3==1.0.2',
     ],
